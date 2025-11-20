@@ -20,7 +20,7 @@ if not GEMINI_API_KEY:
 
 configure(api_key=GEMINI_API_KEY)
 
-gemini_model = GenerativeModel("gemini-1.5-flash")
+gemini_model = GenerativeModel("gemini-2.0-flash")
 
 #GEMINI_API_KEY = "AIzaSyBqEM3cpLKQud1OJgliadD3LZwdzv-4CJs"   # ← ضع مفتاحك هنا!
 
