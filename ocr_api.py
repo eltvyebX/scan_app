@@ -3,7 +3,7 @@ import requests
 
 app = FastAPI()
 
-OCR_API_KEY = "YOUR_OCR_SPACE_API_KEY"  # ضع هنا مفتاحك
+OCR_API_KEY = "K83202383788957"  # ضع هنا مفتاحك
 
 @app.post("/upload/")
 async def upload_image(file: UploadFile = File(...)):
