@@ -153,6 +153,10 @@ def extract_data_from_image(image_path):
 @app.get("/")
 def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
+    
+@app.get("/camera")
+def camera_page(request: Request):
+    return templates.TemplateResponse("camera.html", {"request": request})
 
 @app.post("/scan")
 async def scan_receipt(request: Request, file: UploadFile = File(...)):
