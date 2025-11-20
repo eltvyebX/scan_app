@@ -4,3 +4,4 @@ pillow
 pytesseract
 opencv-python-headless
 jinja2
+python-multipart
