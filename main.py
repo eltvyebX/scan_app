@@ -5,6 +5,7 @@ import sqlite3
 import tempfile 
 from typing import Optional
 from datetime import datetime
+from ocr_api import upload_image
 
 from fastapi import FastAPI, Request, File, UploadFile, Form
 from fastapi.responses import RedirectResponse
