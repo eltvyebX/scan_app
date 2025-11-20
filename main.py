@@ -152,9 +152,14 @@ async def scan_receipt(request: Request, file: UploadFile = File(...)):
 
     return templates.TemplateResponse("review.html", {
         "request": request,
-        "data": extracted_data,
+        "data": {
+             "trx_last4": str(extracted_data.get("trx_last4", "")),
+            "date_time": str(extracted_data.get("date_time", "")),
+            "amount": str(extracted_data.get("amount", ""))
+    },
         "raw_text": raw_text
-    })
+})
+    
 
 @app.post("/confirm")
 def confirm_data(
