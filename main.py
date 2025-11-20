@@ -13,10 +13,17 @@ from google.generativeai import configure, GenerativeModel
 # --------------------------------------------------
 # Gemini API
 # --------------------------------------------------
-GEMINI_API_KEY = "AIzaSyBqEM3cpLKQud1OJgliadD3LZwdzv-4CJs"   # ← ضع مفتاحك هنا!
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+
+if not GEMINI_API_KEY:
+    raise ValueError("❌ GEMINI_API_KEY is missing — add it in Render Env Vars!")
+
 configure(api_key=GEMINI_API_KEY)
 
 gemini_model = GenerativeModel("gemini-1.5-flash")
+
+#GEMINI_API_KEY = "AIzaSyBqEM3cpLKQud1OJgliadD3LZwdzv-4CJs"   # ← ضع مفتاحك هنا!
+
 
 # --------------------------------------------------
 # FastAPI + DB
