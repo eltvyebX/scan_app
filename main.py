@@ -123,6 +123,25 @@ def extract_data_from_image(image_path):
         if numeric_date:
             data["date_time"] = numeric_date.group(0)
 
+        # --- تنسيق التاريخ النهائي ---
+        raw_date_time = data["date_time"]
+        if raw_date_time:
+            input_formats = [
+                '%d-%b-%Y %H:%M:%S',
+                '%d-%b-%Y%H:%M:%S',
+                '%d-%b-%Y',
+                '%d/%m/%Y',
+                '%Y-%m-%d %H:%M:%S',
+            ]
+            output_format = '%H:%M:%S %d-%m-%Y'  # HH:MM:SS DD-MM-YYYY
+            for fmt in input_formats:
+                try:
+                    dt_object = datetime.strptime(raw_date_time, fmt)
+                    data["date_time"] = dt_object.strftime(output_format)
+                    break
+                except ValueError:
+                    continue
+
         return data, clean_text
 
     except Exception as e:
