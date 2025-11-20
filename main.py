@@ -14,22 +14,16 @@ from google.generativeai import configure, GenerativeModel
 # Gemini API
 # --------------------------------------------------
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-
 if not GEMINI_API_KEY:
     raise ValueError("❌ GEMINI_API_KEY is missing — add it in Render Env Vars!")
 
 configure(api_key=GEMINI_API_KEY)
-
 gemini_model = GenerativeModel("gemini-2.0-flash")
-
-#GEMINI_API_KEY = "AIzaSyBqEM3cpLKQud1OJgliadD3LZwdzv-4CJs"   # ← ضع مفتاحك هنا!
-
 
 # --------------------------------------------------
 # FastAPI + DB
 # --------------------------------------------------
 app = FastAPI()
-
 DB_NAME = "bank_receipts.db"
 
 def init_db():
@@ -85,40 +79,54 @@ def extract_data_from_image(image_path):
         print(clean_text)
         print("---------------------------")
 
-        # --------------------------------------------------
+        # --------------------------
         # Extract Amount
-        # --------------------------------------------------
-        amount_regex = r'(\d{1,3}(?:[,\s]?\d{3})*(?:[\.,]\d{1,3})?)'
-        amount_match = re.search(amount_regex, clean_text)
-
+        # --------------------------
+        amount_match = re.search(r'(?i)(?:المبلغ|إجمالي|Total|Amount)[\s:]*([\d,.\s]+)', clean_text)
         if amount_match:
-            raw_amount = amount_match.group(1)
-            raw_amount = raw_amount.replace(",", "").replace(" ", "")
+            raw_amount = amount_match.group(1).replace(" ", "").replace(",", "")
             try:
                 data["amount"] = float(raw_amount)
-            except:
+            except ValueError:
                 pass
 
-        # --------------------------------------------------
-        # Extract Last 4 digits of transaction
-        # --------------------------------------------------
-        trx_match = re.search(r'(\d{8,})', clean_text)
+        # --------------------------
+        # Extract Transaction ID
+        # --------------------------
+        trx_match = re.search(r'(?i)(?:رقم العملية|Ref|ID|Trx)[\s:]*([0-9]{4,})', clean_text)
         if trx_match:
             data["trx_last4"] = trx_match.group(1)[-4:]
+        else:
+            long_number_match = re.search(r'(\d{8,})', clean_text)
+            if long_number_match:
+                data["trx_last4"] = long_number_match.group(1)[-4:]
 
-        # --------------------------------------------------
+        # --------------------------
         # Extract Date
-        # --------------------------------------------------
-        date_match = re.search(r'(\d{2}[\/\-]\d{2}[\/\-]\d{4})', clean_text)
+        # --------------------------
+        date_match = re.search(r'(\d{2}[\/\-]\d{2}[\/\-]\d{4}(?:\s\d{2}:\d{2}(:\d{2})?)?)', clean_text)
         if date_match:
-            data["date_time"] = date_match.group(1)
-
-        return data, clean_text
+            raw_date = date_match.group(1)
+            input_formats = [
+                "%d/%m/%Y %H:%M:%S",
+                "%d/%m/%Y %H:%M",
+                "%d/%m/%Y",
+                "%d-%m-%Y %H:%M:%S",
+                "%d-%m-%Y %H:%M",
+                "%d-%m-%Y"
+            ]
+            for fmt in input_formats:
+                try:
+                    dt = datetime.strptime(raw_date, fmt)
+                    data["date_time"] = dt.strftime("%d-%m-%Y %H:%M:%S")
+                    break
+                except ValueError:
+                    continue
 
     except Exception as e:
         print("Gemini OCR Error:", e)
-        return data, clean_text
 
+    return data, clean_text
 
 # --------------------------------------------------
 # Routes
@@ -127,11 +135,9 @@ def extract_data_from_image(image_path):
 def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
-
 @app.get("/camera")
 def camera_page(request: Request):
     return templates.TemplateResponse("camera.html", {"request": request})
-
 
 @app.post("/scan")
 async def scan_receipt(request: Request, file: UploadFile = File(...)):
@@ -150,7 +156,6 @@ async def scan_receipt(request: Request, file: UploadFile = File(...)):
         "raw_text": raw_text
     })
 
-
 @app.post("/confirm")
 def confirm_data(
     request: Request,
@@ -168,7 +173,6 @@ def confirm_data(
 
     return RedirectResponse(url="/transactions", status_code=303)
 
-
 @app.get("/transactions")
 def view_transactions(request: Request):
     with sqlite3.connect(DB_NAME) as conn:
@@ -184,7 +188,6 @@ def view_transactions(request: Request):
         "transactions": trs,
         "total_amount": total
     })
-
 
 @app.post("/delete/{id}")
 def delete_transaction(id: int):
