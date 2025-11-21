@@ -13,7 +13,7 @@
 
         <div class="mb-3">
             <label class="form-label fw-bold">رقم المستخدم</label>
-            <input type="text" class="form-control" name="user_id" id="user_id" readonly placeholder="سيتم توليده تلقائيًا">
+            <input type="text" class="form-control" name="user_code" id="user_code" readonly placeholder="سيتم توليده تلقائيًا" value="{{ user_code }}">
         </div>
 
         <div class="mb-3">
@@ -30,9 +30,10 @@
 
 <script>
 document.getElementById("generateUserBtn").addEventListener("click", function() {
-    // توليد رقم مستخدم قوي (مثال: 16 حرف ورقم عشوائي)
-    const randomId = 'USR-' + crypto.getRandomValues(new Uint32Array(4)).join('');
-    document.getElementById("user_id").value = randomId;
+    // توليد رقم مستخدم قوي (8 أحرف hex)
+    const randomHex = Array.from({length: 8}, () => Math.floor(Math.random()*16).toString(16)).join('');
+    const newUserCode = "USR-" + randomHex;
+    document.getElementById("user_code").value = newUserCode;
 });
 </script>
 {% endblock %}
