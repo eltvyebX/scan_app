@@ -67,7 +67,7 @@ templates = Jinja2Templates(directory="templates")
 # --------------------------------------------------
 @app.get("/")
 def start(request: Request):
-    return templates.TemplateResponse("start.html", {"request": request})
+    return templates.TemplateResponse("start_page.html", {"request": request})
 
 @app.get("/register")
 def register_page(request: Request):
