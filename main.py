@@ -27,7 +27,7 @@ def init_db():
         c.execute("""
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_code TEXT UNIQUE,
+                user_id TEXT UNIQUE,
                 bank_account TEXT
             )
         """)
