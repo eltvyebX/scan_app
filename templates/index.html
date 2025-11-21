@@ -1,16 +1,51 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="card p-4 text-center">
-    <h3>رفع صورة الإشعار</h3>
-    <p class="text-muted">يرجى رفع صورة واضحة للإيصال البنكي</p>
-    <form action="/scan" method="post" enctype="multipart/form-data">
+
+<div class="card p-4">
+
+    <h3 class="mb-3 text-center">إدخال عملية جديدة</h3>
+
+    <form action="/confirm" method="post">
+
         <div class="mb-3">
-            <input class="form-control form-control-lg" type="file" name="file" accept="image/*" required>
+            <label class="form-label fw-bold">رقم العملية</label>
+            <input id="trx" type="text" class="form-control" name="trx_last4"
+                   placeholder="مثال: 4892" required>
         </div>
-        <button type="submit" class="btn btn-success w-100 py-2">مسح واستخراج البيانات</button>
+
+        <div class="mb-3">
+            <label class="form-label fw-bold">التاريخ والوقت</label>
+            <input id="datetime" type="text" class="form-control" name="date_time"
+                   readonly required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label fw-bold">المبلغ</label>
+            <input type="number" step="0.01" class="form-control" name="amount" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">حفظ العملية</button>
+
     </form>
-    <div class="mt-3">
-        <a href="/transactions" class="btn btn-outline-secondary w-100">عرض السجل السابق</a>
-    </div>
 </div>
+
+<script>
+    // توليد التاريخ والوقت بمجرد أن يبدأ المستخدم في كتابة رقم العملية
+    document.getElementById("trx").addEventListener("input", function () {
+        const now = new Date();
+
+        const pad = n => n.toString().padStart(2, '0');
+
+        const formatted =
+            pad(now.getDate()) + "-" +
+            pad(now.getMonth() + 1) + "-" +
+            now.getFullYear() + " " +
+            pad(now.getHours()) + ":" +
+            pad(now.getMinutes()) + ":" +
+            pad(now.getSeconds());
+
+        document.getElementById("datetime").value = formatted;
+    });
+</script>
+
 {% endblock %}
