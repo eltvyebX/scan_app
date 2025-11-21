@@ -46,7 +46,7 @@ templates = Jinja2Templates(directory="templates")
 def home(request: Request):
     # توليد الوقت الحالي لعرضه مباشرة في الصندوق
     current_time = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
-    return templates.TemplateResponse("review.html", {"request": request, "data": {"trx_last4": "", "date_time": current_time, "amount": 0.0}})
+    return templates.TemplateResponse("index.html", {"request": request, "data": {"trx_last4": "", "date_time": current_time, "amount": 0.0}})
 
 
 @app.post("/confirm")
@@ -56,7 +56,7 @@ def confirm_data(
     amount: float = Form(...),
 ):
     # توليد التاريخ والوقت لحظيًا عند حفظ البيانات
-    date_time = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+    date_time = datetime.now().strftime("%H:%M:%S %d-%m-%Y")
 
     with sqlite3.connect(DB_NAME) as conn:
         cursor = conn.cursor()
