@@ -2,11 +2,7 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h3>سجل العمليات</h3>
-
-    <div class="d-flex gap-2">
-        <a href="/export-pdf" class="btn btn-sm btn-danger">📄 حفظ السجل PDF</a>
-        <a href="/" class="btn btn-sm btn-primary">+ عملية جديدة</a>
-    </div>
+    <a href="/" class="btn btn-sm btn-primary">+ عملية جديدة</a>
 </div>
 
 {% if transactions %}
@@ -15,7 +11,7 @@
         <table class="table table-striped table-hover mb-0 text-center">
             <thead class="table-dark">
                 <tr>
-                    <th>ID</th>
+                    <th>رقم العملية</th>
                     <th>التاريخ</th>
                     <th>المبلغ</th>
                     <th>حذف</th>
@@ -35,7 +31,6 @@
                 </tr>
                 {% endfor %}
             </tbody>
-
             <tfoot>
                 <tr class="table-info fw-bold">
                     <td colspan="2" class="text-end">الإجمالي الكلي:</td>
@@ -44,6 +39,9 @@
                 </tr>
             </tfoot>
         </table>
+    </div>
+    <div class="p-3 text-end">
+        <a href="/export_pdf" class="btn btn-sm btn-success">حفظ سجل العمليات PDF</a>
     </div>
 </div>
 {% else %}
