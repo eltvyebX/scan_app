@@ -1,22 +1,19 @@
 {% extends "base.html" %}
 {% block content %}
-
 <div class="card p-4">
-
     <h3 class="mb-3 text-center">إدخال عملية جديدة</h3>
 
     <form action="/confirm" method="post">
 
         <div class="mb-3">
-            <label class="form-label fw-bold">رقم العملية</label>
-            <input id="trx" type="text" class="form-control" name="trx_last4"
-                   placeholder="مثال: 4892" required>
+            <label class="form-label fw-bold">رقم العملية (آخر 4 أرقام)</label>
+            <input type="text" class="form-control" name="trx_last4" id="trx_last4" placeholder="مثال: 4892" required
+                   oninput="autoFillDate()">
         </div>
 
         <div class="mb-3">
             <label class="form-label fw-bold">التاريخ والوقت</label>
-            <input id="datetime" type="text" class="form-control" name="date_time"
-                   readonly required>
+            <input type="text" class="form-control" name="date_time" id="date_time" readonly>
         </div>
 
         <div class="mb-3">
@@ -24,28 +21,29 @@
             <input type="number" step="0.01" class="form-control" name="amount" required>
         </div>
 
-        <button type="submit" class="btn btn-primary w-100">حفظ العملية</button>
+        <div class="d-flex flex-column gap-2">
+            <button type="submit" class="btn btn-primary">حفظ العملية</button>
+
+            <!-- الزر الجديد لعرض المعاملات السابقة -->
+            <a href="/transactions" class="btn btn-secondary">
+                عرض المعاملات السابقة
+            </a>
+        </div>
 
     </form>
 </div>
 
 <script>
-    // توليد التاريخ والوقت بمجرد أن يبدأ المستخدم في كتابة رقم العملية
-    document.getElementById("trx").addEventListener("input", function () {
-        const now = new Date();
+function autoFillDate() {
+    // عند إدخال رقم العملية يبدأ بملء الوقت تلقائياً
+    let now = new Date();
+    let formatted = now.getFullYear() + "-" +
+                    String(now.getMonth()+1).padStart(2, '0') + "-" +
+                    String(now.getDate()).padStart(2, '0') + " " +
+                    now.toLocaleTimeString('en-GB');
 
-        const pad = n => n.toString().padStart(2, '0');
-
-        const formatted =
-            pad(now.getDate()) + "-" +
-            pad(now.getMonth() + 1) + "-" +
-            now.getFullYear() + " " +
-            pad(now.getHours()) + ":" +
-            pad(now.getMinutes()) + ":" +
-            pad(now.getSeconds());
-
-        document.getElementById("datetime").value = formatted;
-    });
+    document.getElementById("date_time").value = formatted;
+}
 </script>
 
 {% endblock %}
