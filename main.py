@@ -65,6 +65,10 @@ templates = Jinja2Templates(directory="templates")
 # --------------------------------------------------
 # صفحة تسجيل المستخدم
 # --------------------------------------------------
+@app.get("/")
+def start(request: Request):
+    return templates.TemplateResponse("start.html", {"request": request})
+
 @app.get("/register")
 def register_page(request: Request):
     # توليد user_code تلقائي (8 أحرف hex)
@@ -81,15 +85,19 @@ def register_user(bank_account: str = Form(...), user_code: str = Form(...)):
         )
         conn.commit()
     # بعد التسجيل، إعادة التوجيه إلى صفحة إدخال المعاملات
-    return RedirectResponse(url="/", status_code=303)
+    return RedirectResponse(url="/index", status_code=303)
 
 # --------------------------------------------------
 # صفحة إدخال معاملات جديدة
 # --------------------------------------------------
-@app.get("/")
-def home(request: Request):
-    current_time = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
-    return templates.TemplateResponse("index.html", {"request": request, "data": {"trx_last4": "", "date_time": current_time, "amount": 0.0}})
+@app.get("/index")
+def index_page(request: Request):
+    current_time = datetime.now().strftime("%H:%M:%S %d-%m-%Y")
+    return templates.TemplateResponse("index.html", {
+        "request": request,
+        "data": {"trx_last4": "", "date_time": current_time}
+    })
+
 
 @app.post("/confirm")
 def confirm_data(trx_last4: str = Form(...), amount: float = Form(...)):
