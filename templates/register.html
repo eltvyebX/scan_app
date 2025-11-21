@@ -1,21 +1,38 @@
 {% extends "base_user.html" %}
-{% block title %}تسجيل المستخدم{% endblock %}
+
+{% block title %}تسجيل مستخدم جديد{% endblock %}
+
 {% block content %}
-<div class="card p-4">
-    <h3 class="mb-3 text-center">تسجيل/توليد رقم المستخدم</h3>
-    <form method="post" action="/register">
+<div class="card p-4 shadow-sm">
+    <h3 class="mb-4 text-center">تسجيل مستخدم جديد</h3>
+
+    <form id="registerForm" method="post" action="/register">
+        <div class="mb-3 text-center">
+            <button type="button" class="btn btn-primary w-75" id="generateUserBtn">توليد رقم مستخدم</button>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label fw-bold">رقم المستخدم</label>
+            <input type="text" class="form-control" name="user_id" id="user_id" readonly placeholder="سيتم توليده تلقائيًا">
+        </div>
+
         <div class="mb-3">
             <label class="form-label fw-bold">رقم حساب بنكك</label>
-            <input type="text" class="form-control" name="bank_account" placeholder="أدخل رقم حسابك البنكي" required>
+            <input type="text" class="form-control" name="bank_account" placeholder="أدخل رقم حساب بنكك" required>
         </div>
-        <button type="submit" class="btn btn-primary w-100">توليد رقم المستخدم</button>
-    </form>
 
-    {% if user_token %}
-    <div class="alert alert-success mt-3">
-        رقم المستخدم الخاص بك: <strong>{{ user_token }}</strong><br>
-        يرجى حفظ هذا الرقم للوصول إلى حسابك لاحقًا.
-    </div>
-    {% endif %}
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-success flex-grow-1">حفظ المستخدم</button>
+            <a href="/" class="btn btn-secondary flex-grow-1">إلغاء</a>
+        </div>
+    </form>
 </div>
+
+<script>
+document.getElementById("generateUserBtn").addEventListener("click", function() {
+    // توليد رقم مستخدم قوي (مثال: 16 حرف ورقم عشوائي)
+    const randomId = 'USR-' + crypto.getRandomValues(new Uint32Array(4)).join('');
+    document.getElementById("user_id").value = randomId;
+});
+</script>
 {% endblock %}
