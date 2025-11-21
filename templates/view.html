@@ -2,7 +2,11 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h3>سجل العمليات</h3>
-    <a href="/" class="btn btn-sm btn-primary">+ عملية جديدة</a>
+
+    <div class="d-flex gap-2">
+        <a href="/export-pdf" class="btn btn-sm btn-danger">📄 حفظ السجل PDF</a>
+        <a href="/" class="btn btn-sm btn-primary">+ عملية جديدة</a>
+    </div>
 </div>
 
 {% if transactions %}
@@ -31,7 +35,7 @@
                 </tr>
                 {% endfor %}
             </tbody>
-            <!-- صف الإجمالي يظهر في تذييل الجدول -->
+
             <tfoot>
                 <tr class="table-info fw-bold">
                     <td colspan="2" class="text-end">الإجمالي الكلي:</td>
