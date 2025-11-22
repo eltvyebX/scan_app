@@ -23,7 +23,7 @@ def init_db():
     with sqlite3.connect(DB_NAME) as conn:
         c = conn.cursor()
 
-        # جدول المستخدمين
+        # users table 
         c.execute("""
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -32,7 +32,7 @@ def init_db():
             )
         """)
 
-        # جدول العمليات
+        #  transactions table
         c.execute("""
             CREATE TABLE IF NOT EXISTS transactions (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -82,11 +82,11 @@ def register_user(
                   (user_id, bank_account))
         conn.commit()
 
-        # استرجاع ID
-        c.execute("SELECT id FROM users WHERE user_code = ?", (user_id,))
+        # retrive ID
+        c.execute("SELECT id FROM users WHERE user_id = ?", (user_id,))
         db_user = c.fetchone()
 
-    # حفظ user_id داخل Cookie
+    # save user_id inside the Cookie
     response = RedirectResponse(url="/index", status_code=303)
     response.set_cookie("current_user", str(db_user[0]))
 
@@ -94,7 +94,7 @@ def register_user(
 
 
 # --------------------------------------------------
-# الصفحة الرئيسية لإدخال عملية
+#    transactions home page 
 # --------------------------------------------------
 @app.get("/index")
 def index(request: Request):
@@ -115,7 +115,7 @@ def index(request: Request):
 
 
 # --------------------------------------------------
-# حفظ عملية جديدة
+#   save new transaction
 # --------------------------------------------------
 @app.post("/confirm")
 def confirm_data(
@@ -129,7 +129,7 @@ def confirm_data(
     if not user_id:
         return RedirectResponse(url="/", status_code=303)
 
-    # التاريخ والوقت
+    # date and time
     date_time = datetime.now().strftime("%H:%M:%S %d-%m-%Y")
 
     with sqlite3.connect(DB_NAME) as conn:
@@ -144,7 +144,7 @@ def confirm_data(
 
 
 # --------------------------------------------------
-# صفحة عرض معاملات المستخدم
+#    transcations page view
 # --------------------------------------------------
 @app.get("/transactions")
 def view_transactions(request: Request):
@@ -176,7 +176,7 @@ def view_transactions(request: Request):
 
 
 # --------------------------------------------------
-# حذف عملية
+# delete transaction
 # --------------------------------------------------
 @app.post("/delete/{id}")
 def delete_transaction(id: int, request: Request):
@@ -193,7 +193,7 @@ def delete_transaction(id: int, request: Request):
 
 
 # --------------------------------------------------
-# ملف PDF
+#  PDF file
 # --------------------------------------------------
 @app.get("/export-pdf")
 def export_pdf(request: Request):
@@ -214,7 +214,7 @@ def export_pdf(request: Request):
         )
         transactions = cursor.fetchall()
 
-    # إنشاء PDF
+    # create PDF file
     doc = SimpleDocTemplate(pdf_file, pagesize=A4)
     elements = []
     styles = getSampleStyleSheet()
