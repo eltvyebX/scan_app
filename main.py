@@ -103,7 +103,7 @@ def index(request: Request):
     if not user_id:
         return RedirectResponse(url="/", status_code=303)
 
-    current_time = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+    current_time = datetime.now().strftime("%H:%M:%S %d-%m-%Y")
 
     return templates.TemplateResponse(
         "index.html",
