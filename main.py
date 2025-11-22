@@ -78,7 +78,7 @@ def register_user(
         c = conn.cursor()
 
         # تخزين المستخدم
-        c.execute("INSERT INTO users (user_code, bank_account) VALUES (?, ?)",
+        c.execute("INSERT INTO users (user_id, bank_account) VALUES (?, ?)",
                   (user_id, bank_account))
         conn.commit()
 
