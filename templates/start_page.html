@@ -1,22 +1,92 @@
 {% extends "base_user.html" %}
 
-{% block title %}الصفحة الرئيسية{% endblock %}
+{% block title %}مرحبًا بك في تطبيق أربعة{% endblock %}
 
 {% block content %}
-<div class="card p-4 shadow-sm text-center">
 
-    <h2 class="mb-3"> مرحبًا بك في تطبيق اربعة نظام محفظة الإيصالات البنكية</h2>
-    <p class="text-muted mb-4">فضلاً إذا كانت هذه أول مرة، قم بتسجيل مستخدم جديد.</p>
+<style>
+    .start-container {
+        width: 100%;
+        min-height: 85vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
 
-    <!-- تسجيل مستخدم جديد -->
-    <a href="/register" class="btn btn-primary w-100 mb-3">
-        تسجيل مستخدم جديد
-    </a>
+        background-image: url("/static/MDL_4.jpg"); /* سيتم استبداله تلقائيًا */
+        background-size: cover;
+        background-position: center;
+        position: relative;
+    }
 
-    <!-- تسجيل دخول -->
-    <a href="/login" class="btn btn-outline-secondary w-100">
-        تسجيل الدخول
-    </a>
+    /* طبقة تظليل */
+    .start-container::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: rgba(0,0,0,0.55);
+    }
 
+    .start-box {
+        position: relative;
+        background: #ffffffdd;
+        padding: 30px;
+        border-radius: 12px;
+        width: 100%;
+        max-width: 420px;
+        text-align: center;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    }
+
+    .app-logo {
+        width: 80px;
+        margin-bottom: 15px;
+    }
+
+    .start-btn {
+        display: block;
+        width: 100%;
+        padding: 12px;
+        border-radius: 8px;
+        font-size: 18px;
+        margin-top: 12px;
+    }
+
+    .btn-main {
+        background: #59287f;
+        color: #fff;
+        font-weight: bold;
+    }
+
+    .btn-alt {
+        border: 2px solid #59287f;
+        color: #59287f;
+        font-weight: bold;
+        background: #fff;
+    }
+</style>
+
+<div class="start-container">
+
+    <div class="start-box">
+
+        <!-- لوجو التطبيق -->
+        <img src="/static/logo1-01.png" class="app-logo" alt="Logo">
+
+        <h2 class="mb-3 fw-bold"> مرحبًا بك في تطبيق أربعة - اشعر كأنك في بيتك</h2>
+        <p class="text-muted mb-4">نظام محفظة الإيصالات البنكية  </p>
+
+        <!-- زر تسجيل جديد -->
+        <a href="/register" class="start-btn btn-main">
+            تسجيل مستخدم جديد
+        </a>
+
+        <!-- زر تسجيل الدخول -->
+        <a href="/login" class="start-btn btn-alt">
+            تسجيل الدخول
+        </a>
+
+    </div>
 </div>
+
 {% endblock %}
