@@ -6,6 +6,7 @@ import secrets
 from fastapi import FastAPI, Request, Form
 from fastapi.responses import RedirectResponse, FileResponse
 from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 
 # PDF
 from reportlab.lib.pagesizes import A4
@@ -48,8 +49,9 @@ def init_db():
         conn.commit()
 
 init_db()
+
 #static
-app.mount("/static", StaticFiles(directory="scan_app/static"), name="static")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Templates
 templates = Jinja2Templates(directory="templates")
