@@ -1,0 +1,25 @@
+{% extends "base_user.html" %}
+
+{% block title %}رمز الدخول الخاص بك{% endblock %}
+
+{% block content %}
+<div class="card p-4 shadow-sm text-center">
+
+    <h3 class="mb-3">تم إنشاء حسابك بنجاح</h3>
+
+    <p class="text-muted">هذا هو الرقم السري (PIN) الخاص بحسابك — يرجى حفظه في مكان آمن. سيظهر مرة واحدة فقط.</p>
+
+    <div class="mb-4">
+        <h2 class="fw-bold text-success">{{ pin }}</h2>
+        {% if user_id %}
+        <p class="small text-muted">معرّف المستخدم الداخلي: {{ user_id }}</p>
+        {% endif %}
+    </div>
+
+    <div class="d-grid gap-2">
+        <a href="/login" class="btn btn-primary">الذهاب لتسجيل الدخول</a>
+        <a href="/" class="btn btn-outline-secondary">العودة للرئيسية</a>
+    </div>
+
+</div>
+{% endblock %}
