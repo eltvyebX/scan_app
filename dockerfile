@@ -16,7 +16,10 @@ RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
 # نسخ باقي ملفات المشروع
-COPY . .
+COPY static /scan_app/static
+COPY templates /scan_app/templates
+COPY main.py /scan_app/main.py
+
 
 # فتح البورت الافتراضي لـ FastAPI
 EXPOSE 8000
