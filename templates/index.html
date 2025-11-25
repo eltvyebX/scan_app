@@ -10,7 +10,7 @@
         <div class="mb-3">
             <label class="form-label fw-bold">رقم العملية (آخر 4 أرقام)</label>
             <input type="text" class="form-control" name="trx_last4" id="trx_last4" placeholder="مثال: 4892" required
-                   oninput="autoFillDate()">
+                        oninput="autoFillDate()">
         </div>
 
         <div class="mb-3">
@@ -24,24 +24,52 @@
         </div>
 
         <div class="d-flex flex-column gap-2">
-            <button type="submit" class="btn btn-primary">حفظ العملية</button>
+            <button type="submit" class="btn btn-save-op">حفظ العملية</button>
 
-            <!-- زر عرض المعاملات السابقة -->
-            <a href="/transactions" class="btn btn-secondary">
+            <a href="/transactions" class="btn btn-view-txns">
                 عرض المعاملات السابقة
             </a>
         </div>
     </form>
 </div>
 
+<style>
+    /* 1. زر حفظ العملية (الأخضر المصفر #a1bf37) */
+    .btn-save-op {
+        background-color: #a1bf37;
+        border-color: #a1bf37;
+        color: #fff;
+    }
+    .btn-save-op:hover,
+    .btn-save-op:focus {
+        background-color: #8c9b2f; /* درجة أغمق عند التفاعل */
+        border-color: #8c9b2f;
+        color: #fff;
+    }
+
+    /* 2. زر عرض المعاملات السابقة (البنفسجي الداكن #59287f) */
+    .btn-view-txns {
+        background-color: #59287f;
+        border-color: #59287f;
+        color: #fff;
+    }
+    .btn-view-txns:hover,
+    .btn-view-txns:focus {
+        background-color: #4a1f6a; /* درجة أغمق عند التفاعل */
+        border-color: #4a1f6a;
+        color: #fff;
+    }
+</style>
+
 <script>
 function autoFillDate() {
     // عند إدخال رقم العملية يبدأ بملء الوقت تلقائيًا
     const now = new Date();
     const formatted = now.getFullYear() + "-" +
-                      String(now.getMonth()+1).padStart(2, '0') + "-" +
-                      String(now.getDate()).padStart(2, '0') + " " +
-                      now.toLocaleTimeString('en-GB');
+                        String(now.getMonth()+1).padStart(2, '0') + "-" +
+                        String(now.getDate()).padStart(2, '0') + " " +
+                        // استخدام 'en-GB' لضمان تنسيق 24 ساعة بدون AM/PM افتراضي
+                        now.toLocaleTimeString('en-GB'); 
 
     document.getElementById("date_time").value = formatted;
 }
