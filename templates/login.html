@@ -17,11 +17,39 @@
             <input type="text" maxlength="4" class="form-control" name="pin" placeholder="أدخل الـ PIN" required>
         </div>
 
-        <button type="submit" class="btn btn-success w-100 mt-3">
+        <button type="submit" class="btn btn-login w-100 mt-3">
             دخول
         </button>
 
-        <a href="/" class="btn btn-secondary w-100 mt-2">الرجوع</a>
+        <a href="/" class="btn btn-back w-100 mt-2">الرجوع</a>
     </form>
 </div>
+
+<style>
+    /* 1. زر الدخول (الأخضر المصفر #a1bf37) */
+    .btn-login {
+        background-color: #a1bf37;
+        border-color: #a1bf37;
+        color: #fff;
+    }
+    .btn-login:hover,
+    .btn-login:focus {
+        background-color: #8c9b2f; /* درجة أغمق عند التفاعل */
+        border-color: #8c9b2f;
+        color: #fff;
+    }
+
+    /* 2. زر الرجوع (الرمادي الفاتح #adb5bd) */
+    .btn-back {
+        background-color: #adb5bd; /* رمادي فاتح */
+        border-color: #adb5bd;
+        color: #fff; /* نص أبيض لتباين جيد */
+    }
+    .btn-back:hover,
+    .btn-back:focus {
+        background-color: #939aa2; /* درجة أغمق قليلاً عند التفاعل */
+        border-color: #939aa2;
+        color: #fff;
+    }
+</style>
 {% endblock %}
