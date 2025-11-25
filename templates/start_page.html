@@ -7,17 +7,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body, html {
-            /* 📱 الافتراضي: تصميم الهاتف */
             margin: 0;
             padding: 0;
             height: 100%;
             font-family: 'Cairo', sans-serif;
-            background-color: #f0f0f0; /* خلفية خفيفة */
+            background-color: #f0f0f0;
         }
 
         .start-container {
             display: flex;
-            flex-direction: column; /* الترتيب الافتراضي: الصورة فوق النص */
+            flex-direction: column;
             min-height: 100vh;
             width: 100%;
             position: relative;
@@ -26,26 +25,26 @@
         /* 🖼️ الصورة الأساسية (في الجزء العلوي للهاتف) */
         .start-image {
             width: 100%;
-            height: 250px; /* ارتفاع ثابت نسبيًا للهاتف */
+            height: 250px;
             background-image: url("/static/MDL_4.jpg");
             background-size: cover;
-            background-position: center center; /* تركيز في المنتصف */
+            background-position: center center;
             background-repeat: no-repeat;
         }
 
         /* 📦 صندوق الكتابة (في الجزء السفلي للهاتف) */
         .start-box {
-            flex-grow: 1; /* يشغل المساحة المتبقية */
+            flex-grow: 1;
             display: flex;
             flex-direction: column;
-            justify-content: flex-start; /* المحتوى يبدأ من الأعلى */
-            align-items: center; /* محاذاة كل شيء في المنتصف */
+            justify-content: flex-start;
+            align-items: center; 
             padding: 40px 25px 20px;
             background: #fff;
-            margin: -20px 0 0 0; /* تحريكه للأعلى قليلاً فوق الصورة */
+            margin: -20px 0 0 0;
             border-radius: 20px 20px 0 0;
             box-shadow: 0 -5px 15px rgba(0,0,0,0.1);
-            text-align: center; /* محاذاة النص في المنتصف */
+            text-align: center; 
         }
 
         /* تعديلات محددة لعناصر النص */
@@ -53,23 +52,27 @@
             margin-top: 0;
             font-size: 24px;
             color: #59287f;
+            /* ⚠️ تم التعديل هنا لتقليل المسافة */
+            margin-bottom: 5px; 
         }
 
         .start-box p {
             font-size: 16px;
             color: #666;
-            margin-bottom: 30px;
+            /* ⚠️ تم التعديل هنا لتقليل المسافة */
+            margin-top: 5px; 
+            margin-bottom: 30px; 
         }
 
         /* 🔘 الأزرار */
         .start-btn {
             padding: 14px 0;
-            border-radius: 10px; /* جعلها أكثر استدارة قليلاً */
+            border-radius: 10px;
             font-size: 17px;
             font-weight: 700;
             margin-bottom: 15px;
             width: 100%;
-            max-width: 350px; /* تحديد عرض أقصى للأزرار */
+            max-width: 350px;
             text-decoration: none;
             text-align: center;
             transition: background-color 0.3s ease, color 0.3s ease;
@@ -93,35 +96,35 @@
         /* --- استعلام الوسائط للشاشات الأكبر (مثل سطح المكتب) --- */
         @media (min-width: 769px) {
             .start-container {
-                flex-direction: row; /* العودة إلى الترتيب الأفقي */
+                flex-direction: row;
             }
             .start-image {
-                flex: 1.2; /* تعطي مساحة أكبر للصورة */
-                height: 100vh; /* ارتفاع كامل */
-                background-position: left center; /* محاذاة قليلاً إلى اليسار */
+                flex: 1.2;
+                height: 100vh;
+                background-position: left center;
                 margin: 0;
                 border-radius: 0;
             }
             .start-box {
-                flex: 0.7; /* مساحة أقل من الصورة */
-                justify-content: center; /* محاذاة المحتوى في المنتصف عمودياً */
-                align-items: flex-start; /* محاذاة النص إلى اليمين */
+                flex: 0.7;
+                justify-content: center;
+                align-items: center; 
                 padding: 60px 40px;
-                margin: 40px 40px 40px 0; /* هوامش خارجية كما في التصميم الأصلي */
-                border-radius: 20px; /* جعل الزوايا كلها مستديرة */
+                margin: 40px 40px 40px 0;
+                border-radius: 20px;
                 max-width: 480px;
                 box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-                position: absolute; /* وضعه كعنصر مطلق فوق الصورة */
+                position: absolute;
                 top: 50%;
                 right: 0;
                 transform: translateY(-50%);
-                text-align: right;
+                text-align: center; 
             }
             .start-box h2, .start-box p {
-                text-align: right;
+                text-align: center;
             }
              .start-btn {
-                max-width: none; /* إزالة الحد الأقصى للعرض على سطح المكتب */
+                max-width: none;
             }
         }
     </style>
