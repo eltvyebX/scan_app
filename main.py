@@ -2,7 +2,7 @@ import os
 import sqlite3
 from datetime import datetime
 import base64
-from fastapi import FastAPI, Request, Form, Response
+from fastapi import FastAPI, Request, Form
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -48,48 +48,49 @@ def init_db():
 init_db()
 
 # ------------------------
-# صفحة تسجيل مستخدم جديد
+# الصفحة الترحيبية
+# ------------------------
+@app.get("/")
+def start_page(request: Request):
+    return templates.TemplateResponse("start_page.html", {"request": request})
+
+# ------------------------
+# تسجيل مستخدم جديد
 # ------------------------
 @app.get("/register")
 def register_page(request: Request):
     return templates.TemplateResponse("register.html", {"request": request, "user_id": ""})
 
 @app.post("/register")
-def register_user(
-    request: Request,
-    user_id: str = Form(...),
-    pin: str = Form(...),
-    bank_account: str = Form(...)
-):
+def register_user(request: Request, bank_account: str = Form(...), user_id: str = Form(...), pin: str = Form(...)):
     with sqlite3.connect(DB_NAME) as conn:
         c = conn.cursor()
-        c.execute("INSERT INTO users (user_id, pin, bank_account) VALUES (?, ?, ?)",
-                  (user_id, pin, bank_account))
+        c.execute("INSERT INTO users (user_id, bank_account, pin) VALUES (?, ?, ?)", (user_id, bank_account, pin))
         conn.commit()
-    return RedirectResponse(url="/login", status_code=303)
+    return templates.TemplateResponse("show_pin.html", {"request": request, "pin": pin, "user_id": user_id})
 
 # ------------------------
-# صفحة تسجيل الدخول
+# تسجيل الدخول
 # ------------------------
 @app.get("/login")
 def login_page(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
 
 @app.post("/login")
-def login_user(response: Response, bank_account: str = Form(...), pin: str = Form(...)):
+def login_user(request: Request, bank_account: str = Form(...), pin: str = Form(...)):
     with sqlite3.connect(DB_NAME) as conn:
         c = conn.cursor()
-        c.execute("SELECT id FROM users WHERE bank_account = ? AND pin = ?", (bank_account, pin))
-        row = c.fetchone()
-    if row:
-        user_id = str(row[0])
-        redirect_response = RedirectResponse(url="/index", status_code=303)
-        redirect_response.set_cookie(key="current_user", value=user_id)
-        return redirect_response
-    return RedirectResponse(url="/login", status_code=303)
+        c.execute("SELECT id FROM users WHERE bank_account=? AND pin=?", (bank_account, pin))
+        user = c.fetchone()
+    if user:
+        response = RedirectResponse(url="/index", status_code=303)
+        response.set_cookie(key="current_user", value=str(user[0]))
+        return response
+    else:
+        return templates.TemplateResponse("login.html", {"request": request, "error": "رقم الحساب أو PIN غير صحيح"})
 
 # ------------------------
-# صفحة التقاط إشعار جديد
+# صفحة العمليات (index)
 # ------------------------
 @app.get("/index")
 def index(request: Request):
@@ -106,7 +107,6 @@ def upload_capture(request: Request, captured_image: str = Form(...)):
     user_id_str = request.cookies.get("current_user")
     if not user_id_str:
         return RedirectResponse(url="/login", status_code=303)
-
     try:
         user_id = int(user_id_str)
     except ValueError:
@@ -121,7 +121,7 @@ def upload_capture(request: Request, captured_image: str = Form(...)):
     with open(filepath, "wb") as f:
         f.write(image_data)
 
-    # حفظ مسار الصورة وتاريخها في قاعدة البيانات
+    # حفظ مسار الصورة في قاعدة البيانات
     with sqlite3.connect(DB_NAME) as conn:
         c = conn.cursor()
         c.execute(
@@ -133,7 +133,7 @@ def upload_capture(request: Request, captured_image: str = Form(...)):
     return RedirectResponse(url="/view", status_code=303)
 
 # ------------------------
-# عرض جميع الإشعارات
+# عرض جميع الإشعارات (view)
 # ------------------------
 @app.get("/view")
 def view_transactions(request: Request):
@@ -148,17 +148,11 @@ def view_transactions(request: Request):
     with sqlite3.connect(DB_NAME) as conn:
         conn.row_factory = sqlite3.Row
         c = conn.cursor()
-        c.execute(
-            "SELECT * FROM transactions WHERE user_id = ? ORDER BY id DESC",
-            (user_id_int,)
-        )
+        c.execute("SELECT * FROM transactions WHERE user_id = ? ORDER BY id DESC", (user_id_int,))
         trs = c.fetchall()
 
     total_amount = sum([float(t["amount"]) for t in trs]) if trs else 0
-    return templates.TemplateResponse(
-        "view.html",
-        {"request": request, "transactions": trs, "total_amount": total_amount}
-    )
+    return templates.TemplateResponse("view.html", {"request": request, "transactions": trs, "total_amount": total_amount})
 
 # ------------------------
 # حذف إشعار
@@ -173,7 +167,6 @@ def delete_transaction(id: int, request: Request):
     except ValueError:
         return RedirectResponse(url="/login", status_code=303)
 
-    # حذف الصورة من المجلد
     with sqlite3.connect(DB_NAME) as conn:
         c = conn.cursor()
         c.execute("SELECT image_path FROM transactions WHERE id = ? AND user_id = ?", (id, user_id_int))
@@ -184,3 +177,12 @@ def delete_transaction(id: int, request: Request):
         conn.commit()
 
     return RedirectResponse(url="/view", status_code=303)
+
+# ------------------------
+# تسجيل الخروج
+# ------------------------
+@app.get("/logout")
+def logout():
+    response = RedirectResponse(url="/", status_code=303)
+    response.delete_cookie("current_user")
+    return response
