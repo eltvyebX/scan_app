@@ -2,15 +2,13 @@ import os
 import sqlite3
 from datetime import datetime
 import base64
-from fastapi import FastAPI, Request, Form, UploadFile
+from fastapi import FastAPI, Request, Form
 from fastapi.responses import RedirectResponse, FileResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
 DB_NAME = "bank_receipts.db"
-
-# مجلد حفظ الإشعارات
 RECEIPTS_DIR = "receipts"
 os.makedirs(RECEIPTS_DIR, exist_ok=True)
 
@@ -48,7 +46,30 @@ def init_db():
 init_db()
 
 # ------------------------
-# صفحة العمليات (index)
+# صفحة تسجيل الدخول
+# ------------------------
+@app.get("/login")
+def login_page(request: Request):
+    return templates.TemplateResponse("login.html", {"request": request})
+
+@app.post("/login")
+def login_user(request: Request, bank_account: str = Form(...), pin: str = Form(...)):
+    with sqlite3.connect(DB_NAME) as conn:
+        c = conn.cursor()
+        c.execute("SELECT id FROM users WHERE bank_account=? AND pin=?", (bank_account, pin))
+        user = c.fetchone()
+
+    if user:
+        response = RedirectResponse(url="/index", status_code=303)
+        # الكوكي صالح لمدة 30 يومًا
+        one_month = 30*24*60*60
+        response.set_cookie("current_user", str(user[0]), max_age=one_month)
+        return response
+    else:
+        return templates.TemplateResponse("login.html", {"request": request, "error": "بيانات الدخول غير صحيحة"})
+
+# ------------------------
+# صفحة index
 # ------------------------
 @app.get("/index")
 def index(request: Request):
@@ -60,7 +81,7 @@ def index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request, "data": {"date_time": current_time}})
 
 # ------------------------
-# رفع صورة الكاميرا وحفظها
+# رفع صورة الكاميرا
 # ------------------------
 @app.post("/upload_capture")
 def upload_capture(request: Request, captured_image: str = Form(...)):
@@ -82,7 +103,7 @@ def upload_capture(request: Request, captured_image: str = Form(...)):
     with open(filepath, "wb") as f:
         f.write(image_data)
 
-    # حفظ مسار الصورة وتاريخها في قاعدة البيانات
+    # حفظ مسار الصورة في قاعدة البيانات
     with sqlite3.connect(DB_NAME) as conn:
         c = conn.cursor()
         c.execute(
@@ -94,13 +115,14 @@ def upload_capture(request: Request, captured_image: str = Form(...)):
     return RedirectResponse(url="/view", status_code=303)
 
 # ------------------------
-# عرض جميع الإشعارات (view)
+# عرض جميع الإشعارات
 # ------------------------
 @app.get("/view")
 def view_transactions(request: Request):
     user_id_str = request.cookies.get("current_user")
     if not user_id_str:
         return RedirectResponse(url="/login", status_code=303)
+
     try:
         user_id_int = int(user_id_str)
     except ValueError:
@@ -109,17 +131,11 @@ def view_transactions(request: Request):
     with sqlite3.connect(DB_NAME) as conn:
         conn.row_factory = sqlite3.Row
         c = conn.cursor()
-        c.execute(
-            "SELECT * FROM transactions WHERE user_id = ? ORDER BY id DESC",
-            (user_id_int,)
-        )
+        c.execute("SELECT * FROM transactions WHERE user_id=? ORDER BY id DESC", (user_id_int,))
         trs = c.fetchall()
 
     total_amount = sum([float(t["amount"]) for t in trs]) if trs else 0
-    return templates.TemplateResponse(
-        "view.html",
-        {"request": request, "transactions": trs, "total_amount": total_amount}
-    )
+    return templates.TemplateResponse("view.html", {"request": request, "transactions": trs, "total_amount": total_amount})
 
 # ------------------------
 # حذف إشعار
@@ -129,19 +145,21 @@ def delete_transaction(id: int, request: Request):
     user_id_str = request.cookies.get("current_user")
     if not user_id_str:
         return RedirectResponse(url="/login", status_code=303)
+
     try:
         user_id_int = int(user_id_str)
     except ValueError:
         return RedirectResponse(url="/login", status_code=303)
 
-    # حذف الصورة من المجلد
     with sqlite3.connect(DB_NAME) as conn:
         c = conn.cursor()
-        c.execute("SELECT image_path FROM transactions WHERE id = ? AND user_id = ?", (id, user_id_int))
+        # حذف الصورة من المجلد
+        c.execute("SELECT image_path FROM transactions WHERE id=? AND user_id=?", (id, user_id_int))
         row = c.fetchone()
         if row and row[0] and os.path.exists(row[0]):
             os.remove(row[0])
-        c.execute("DELETE FROM transactions WHERE id = ? AND user_id = ?", (id, user_id_int))
+        # حذف السجل
+        c.execute("DELETE FROM transactions WHERE id=? AND user_id=?", (id, user_id_int))
         conn.commit()
 
     return RedirectResponse(url="/view", status_code=303)
