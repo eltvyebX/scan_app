@@ -6,58 +6,68 @@
 <div class="card p-4 shadow-sm text-center">
     <h3 class="mb-4">التقاط إشعار جديد</h3>
 
-    <video id="video" width="100%" autoplay playsinline style="border:1px solid #ccc;"></video>
+    <video id="video" width="100%" autoplay playsinline style="border:1px solid #ccc; border-radius:5px;"></video>
     <canvas id="canvas" style="display:none;"></canvas>
 
-    <div class="mt-3">
-        <button class="btn btn-save-op" id="captureBtn">التقاط وحفظ الإشعار</button>
-        <a href="/view" class="btn btn-view-txns">عرض جميع الإشعارات</a>
+    <div class="mt-3 d-flex flex-column gap-2">
+        <button id="captureBtn" class="btn btn-save-op">التقاط الإشعار</button>
+        <button id="retakeBtn" class="btn btn-danger" style="display:none;">إعادة التقاط</button>
     </div>
 </div>
-
-<style>
-.btn-save-op {
-    background-color: #a1bf37;
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    margin: 5px;
-}
-.btn-view-txns {
-    background-color: #59287f;
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    margin: 5px;
-}
-</style>
 
 <script>
 const video = document.getElementById('video');
 const canvas = document.getElementById('canvas');
 const captureBtn = document.getElementById('captureBtn');
+const retakeBtn = document.getElementById('retakeBtn');
 
-// الوصول للكاميرا
-navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
-    video.srcObject = stream;
-}).catch(err => alert("لا يمكن الوصول للكاميرا: " + err));
+// تشغيل الكاميرا
+navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+    .then(stream => { video.srcObject = stream; })
+    .catch(err => { alert("تعذر الوصول للكاميرا: " + err); });
 
-captureBtn.addEventListener('click', function(e) {
-    e.preventDefault();
+captureBtn.addEventListener('click', () => {
+    // أخذ لقطة
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
-    const context = canvas.getContext('2d');
-    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    canvas.getContext('2d').drawImage(video, 0, 0);
 
+    // تحويل الصورة لبيانات Base64
     const dataUrl = canvas.toDataURL('image/png');
 
-    // إرسال الصورة عبر form POST
-    const form = new FormData();
-    form.append('captured_image', dataUrl);
+    // إرسال الصورة لـ FastAPI
+    fetch('/upload_capture', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'captured_image=' + encodeURIComponent(dataUrl)
+    }).then(() => {
+        window.location.href = "/view";
+    });
 
-    fetch('/upload_capture', { method: 'POST', body: form })
-        .then(() => window.location.href='/view')
-        .catch(err => alert("حدث خطأ عند رفع الإشعار: " + err));
+    // إخفاء زر الالتقاط وإظهار إعادة الالتقاط
+    captureBtn.style.display = 'none';
+    retakeBtn.style.display = 'block';
+});
+
+retakeBtn.addEventListener('click', () => {
+    captureBtn.style.display = 'block';
+    retakeBtn.style.display = 'none';
 });
 </script>
+
+<style>
+.btn-save-op {
+    background-color: #a1bf37;
+    border-color: #a1bf37;
+    color: #fff;
+}
+.btn-save-op:hover { background-color: #8c9b2f; }
+
+.btn-danger {
+    background-color: #d9534f;
+    border-color: #d43f3a;
+    color: #fff;
+}
+.btn-danger:hover { background-color: #c12e2a; }
+</style>
 {% endblock %}
