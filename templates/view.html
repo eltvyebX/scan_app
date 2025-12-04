@@ -1,49 +1,94 @@
 {% extends "base_user.html" %}
 
-{% block title %}الإشعارات السابقة{% endblock %}
+{% block title %}لوحة الإيصالات{% endblock %}
 
 {% block content %}
-<div class="card p-4 shadow-sm">
-    <h3 class="mb-4 text-center">الإشعارات السابقة</h3>
 
-    {% if transactions %}
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>الصورة</th>
-                <th>المبلغ</th>
-                <th>التاريخ</th>
-                <th>إجراءات</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for trx in transactions %}
-            <tr>
-                <td><a href="{{ '/' + trx.image_path }}" target="_blank">
-                    <img src="{{ '/' + trx.image_path }}" width="80">
-                </a></td>
-                <td>{{ "%.2f"|format(trx.amount) }}</td>
-                <td>{{ trx.created_at }}</td>
-                <td>
-                    <form action="/delete/{{ trx.id }}" method="post" onsubmit="return confirm('هل أنت متأكد من الحذف؟');">
-                        <button type="submit" class="btn btn-danger btn-sm">حذف</button>
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
-            <tr>
-                <td><strong>الإجمالي</strong></td>
-                <td colspan="3"><strong>{{ "%.2f"|format(total_amount) }}</strong></td>
-            </tr>
-        </tbody>
-    </table>
+<div class="card p-3 shadow-sm text-center">
+
+    <h3 class="mb-3">لوحة الإيصالات</h3>
+
+    <!-- Dashboard Boxes -->
+    <div class="row text-center mb-4">
+        <div class="col-6">
+            <div class="stats-box p-3">
+                <h5 class="text-muted">عدد الإشعارات</h5>
+                <h2 class="fw-bold">{{ total_images }}</h2>
+            </div>
+        </div>
+
+        <div class="col-6">
+            <div class="stats-box p-3">
+                <h5 class="text-muted">إجمالي المبالغ</h5>
+                <h2 class="fw-bold" style="color:#59287f;">{{ total_amount }}</h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- زر الرجوع -->
+    <a href="/index" class="btn btn-primary w-100 mb-3">التقاط إشعار جديد</a>
+
+    <!-- زر حذف جميع الصور -->
+    <a href="/delete_all" class="btn btn-danger w-100 mb-3"
+       onclick="return confirm('هل أنت متأكد من حذف جميع الإشعارات؟');">
+        حذف جميع الصور
+    </a>
+
+    <!-- زر تصدير PDF -->
+    <a href="/export_pdf" class="btn btn-success w-100 mb-4">
+        تصدير جميع الإشعارات PDF
+    </a>
+
+    <hr>
+
+    <h5 class="mt-3 mb-3">صور الإشعارات</h5>
+
+    {% if images %}
+    <div class="images-grid">
+        {% for img in images %}
+            <div class="img-card">
+                <img src="/static/receipts/{{ img }}" alt="Receipt Image">
+            </div>
+        {% endfor %}
+    </div>
     {% else %}
-    <div class="alert alert-info">لا توجد إشعارات محفوظة بعد.</div>
+        <p class="text-muted">لا توجد إشعارات محفوظة حتى الآن.</p>
     {% endif %}
+
 </div>
 
+
 <style>
-.btn-danger { background-color:#d9534f; color:#fff; }
-.btn-danger:hover { background-color:#c12e2a; }
+    .stats-box {
+        background: #f8f9fa;
+        border-radius: 10px;
+        border: 1px solid #ddd;
+    }
+
+    .images-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 10px;
+        padding-bottom: 20px;
+    }
+
+    .img-card {
+        background: white;
+        padding: 5px;
+        border-radius: 10px;
+        box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+
+    .img-card img {
+        width: 100%;
+        border-radius: 8px;
+    }
+
+    @media (max-width: 480px) {
+        .images-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
 </style>
+
 {% endblock %}
