@@ -3,7 +3,6 @@
 {% block title %}التقاط إشعار جديد{% endblock %}
 
 {% block content %}
-
 <style>
     /* الحاوية الأساسية */
     .capture-container {
@@ -103,7 +102,6 @@
 </div>
 
 <script>
-    // تشغيل الكاميرا
     const camera = document.getElementById("camera");
     const captureBtn = document.getElementById("capture-btn");
     const capturedImage = document.getElementById("captured-image");
@@ -112,35 +110,32 @@
         .then(stream => camera.srcObject = stream)
         .catch(err => alert("تعذر الوصول إلى الكاميرا: " + err));
 
-    // التقاط الصورة
     captureBtn.onclick = () => {
         const canvas = document.createElement("canvas");
         canvas.width = camera.videoWidth;
         canvas.height = camera.videoHeight;
-
         const ctx = canvas.getContext("2d");
         ctx.drawImage(camera, 0, 0);
 
-        const imgData = canvas.toDataURL("image/jpeg");
-
+        const imgData = canvas.toDataURL("image/png");
         capturedImage.src = imgData;
         capturedImage.style.display = "block";
 
-        // إرسال الصورة إلى السيرفر
-        fetch("/capture_image", {
+        // إرسال الصورة إلى السيرفر لحفظها وقراءة المبلغ
+        fetch("/upload_capture", {
             method: "POST",
-            body: JSON.stringify({ image_data: imgData }),
-            headers: { "Content-Type": "application/json" }
+            body: new URLSearchParams({ captured_image: imgData })
         })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                alert("✔ تم حفظ الإشعار بنجاح");
+        .then(res => {
+            if (res.redirected) {
+                window.location.href = res.url; // الانتقال لصفحة view
             } else {
-                alert("خطأ في حفظ الإشعار");
+                alert("حدث خطأ أثناء حفظ الإشعار");
             }
+        })
+        .catch(err => {
+            alert("خطأ في الاتصال بالسيرفر: " + err);
         });
     };
 </script>
-
 {% endblock %}
