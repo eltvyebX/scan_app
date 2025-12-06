@@ -144,6 +144,48 @@ def index(request: Request):
         return RedirectResponse(url="/login", status_code=303)
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     return templates.TemplateResponse("index.html", {"request": request, "data": {"date_time": current_time}})
+# ------------------------
+# صفحة العرض 
+# ------------------------
+
+@app.get("/view")
+def view_transactions(request: Request):
+    user_id_str = request.cookies.get("current_user")
+    if not user_id_str:
+        return RedirectResponse(url="/login", status_code=303)
+
+    try:
+        user_id_int = int(user_id_str)
+    except ValueError:
+        return RedirectResponse(url="/login", status_code=303)
+
+    with sqlite3.connect(DB_NAME) as conn:
+        conn.row_factory = sqlite3.Row
+        c = conn.cursor()
+        c.execute(
+            "SELECT * FROM transactions WHERE user_id = ? ORDER BY id DESC",
+            (user_id_int,)
+        )
+        trs = c.fetchall()
+
+    # الصور فقط (اسم الملف)
+    images = [os.path.basename(t["image_path"]) for t in trs]
+
+    # عدد الصور
+    total_images = len(images)
+
+    # اجمالي المبالغ
+    total_amount = sum([float(t["amount"]) for t in trs]) if trs else 0
+
+    return templates.TemplateResponse(
+        "view.html",
+        {
+            "request": request,
+            "images": images,
+            "total_images": total_images,
+            "total_amount": total_amount
+        }
+    )
 
 # ------------------------
 # تشغيل السيرفر
