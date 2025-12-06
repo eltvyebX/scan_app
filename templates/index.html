@@ -1,103 +1,65 @@
 {% extends "base_user.html" %}
-
-{% block title %}التقاط إشعار جديد{% endblock %}
+{% block title %}التقاط الإشعار{% endblock %}
 
 {% block content %}
+<div class="card p-3 text-center">
 
-<div class="text-center">
+    <h4 class="mb-3">التقاط صورة الإشعار</h4>
 
-    <h4 class="mb-3" style="color:#59287f; font-weight:700;">
-        التقط صورة الإشعار
-    </h4>
+    <video id="camera" autoplay playsinline style="width:100%; border-radius:10px;"></video>
 
-    <!-- كاميرا الهاتف -->
-    <div class="camera-box mb-4">
-        <video id="camera" autoplay playsinline></video>
-    </div>
-
-    <!-- زر التقاط الصورة -->
-    <button id="captureBtn" class="btn btn-main w-100 mb-3" style="padding:14px;">
-        التقاط الإشعار
+    <!-- زر التقاط -->
+    <button id="captureBtn" class="btn btn-primary w-100 mt-3">
+        التقاط الصورة
     </button>
 
-    <!-- زر الذهاب مباشرة إلى view -->
-    <a href="/view" class="btn btn-alt w-100" style="padding:14px;">
-        عرض الإشعارات المحفوظة
-    </a>
-
-    <!-- فورم مخفي لإرسال الصورة -->
-    <form id="uploadForm" method="POST" action="/upload_capture" enctype="multipart/form-data">
-        <input type="hidden" name="image_data" id="image_data">
+    <!-- الفورم الذي يرسل الصورة -->
+    <form id="captureForm" method="POST" action="/upload_capture">
+        <input type="hidden" name="captured_image" id="captured_image">
     </form>
+
+    <hr class="my-3">
+
+    <!-- زر الذهاب لصفحة view -->
+    <a href="/view" class="btn btn-secondary w-100">عرض الإشعارات</a>
 </div>
 
-<style>
-    video {
-        width: 100%;
-        max-width: 420px;
-        border-radius: 12px;
-        background: #000;
-    }
-
-    .camera-box {
-        display: flex;
-        justify-content: center;
-    }
-
-    .btn-main {
-        background: #59287f;
-        border: none;
-        color: #fff;
-        font-size: 17px;
-        font-weight: 700;
-    }
-
-    .btn-main:hover {
-        background: #451c62;
-    }
-
-    .btn-alt {
-        background: #fff;
-        border: 2px solid #59287f;
-        color: #59287f;
-        font-size: 17px;
-        font-weight: 700;
-    }
-
-    .btn-alt:hover {
-        background: #f4f4f4;
-    }
-</style>
+<canvas id="canvas" style="display:none;"></canvas>
 
 {% endblock %}
 
 {% block scripts %}
 <script>
-    // تشغيل الكاميرا
-    const video = document.getElementById('camera');
+    const video = document.getElementById("camera");
+    const canvas = document.getElementById("canvas");
+    const captureBtn = document.getElementById("captureBtn");
+    const hiddenInput = document.getElementById("captured_image");
+    const form = document.getElementById("captureForm");
 
+    // تشغيل الكاميرا
     navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
-        .then(stream => {
-            video.srcObject = stream;
-        })
-        .catch(err => {
-            alert("لا يمكن فتح الكاميرا، يرجى السماح بالأذن للكاميرا.");
-        });
+        .then(stream => video.srcObject = stream)
+        .catch(err => alert("لا يمكن تشغيل الكاميرا: " + err));
 
     // التقاط الصورة
-    document.getElementById('captureBtn').onclick = function() {
-        let canvas = document.createElement('canvas');
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
+    captureBtn.addEventListener("click", () => {
+        const w = video.videoWidth;
+        const h = video.videoHeight;
 
-        let ctx = canvas.getContext('2d');
-        ctx.drawImage(video, 0, 0);
+        canvas.width = w;
+        canvas.height = h;
 
-        let imageData = canvas.toDataURL("image/png");
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(video, 0, 0, w, h);
 
-        document.getElementById("image_data").value = imageData;
+        // تحويل الصورة base64
+        const dataURL = canvas.toDataURL("image/png");
 
-        document.getElementById("uploadForm").submit();
-    };
+        // وضعها في input
+        hiddenInput.value = dataURL;
+
+        // إرسال الفورم
+        form.submit();
+    });
 </script>
 {% endblock %}
